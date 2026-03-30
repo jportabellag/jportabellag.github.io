@@ -1,110 +1,62 @@
 <!DOCTYPE html>
+
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5BujZqJLB"
-      crossorigin="anonymous"
-    />
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
-      crossorigin="anonymous"
-    ></script>
-    <link href="styles.css" rel="stylesheet" />
-    <title>My Webpage</title>
-  </head>
-  <body class="body-light">
-    <header>
-      <nav>
-        <ul>
-          <li><a href="#home">Home</a></li>
-          <li><a href="#works">My Works</a></li>
-          <li><a href="#aboutme">About me</a></li>
-        </ul>
-      </nav>
-
-      <div class="right">
-        <select id="lenguaje-select">
-          <option value="EN">EN</option>
-          <option value="ES">ES</option>
-        </select>
-        <button class="theme-toggle" onclick="changeColor(this)">☀️</button>
-      </div>
-    </header>
-
-    <div class="section hero-section" id="home">
-      <div class="hero-copy">
-        <span class="eyebrow">Creative developer · clean systems · bold ideas</span>
-        <h1>Elegant digital experiences with a sharp technical soul.</h1>
-        <p>
-          I build interfaces, systems and experiments with a focus on clarity,
-          identity and detail. Minimal on the surface, ambitious underneath.
-        </p>
-        <div class="hero-actions">
-          <a class="hero-link primary-link" href="#works">View projects</a>
-          <a class="hero-link secondary-link" href="#aboutme">About me</a>
-        </div>
-      </div>
-      <div class="hero-visual" aria-hidden="true">
-        <div class="orb orb-one"></div>
-        <div class="orb orb-two"></div>
-        <div class="hero-grid"></div>
-      </div>
-    </div>
-
-    <div class="section" id="works">
-      <div class="section-heading">
-        <span class="section-label">Selected work</span>
-        <h2>My Works</h2>
-        <p>
-          Live repositories loaded directly from GitHub, presented with a more
-          premium portfolio feel.
-        </p>
-      </div>
-
-      <div class="slider projects-grid" id="projects"></div>
-    </div>
-
-    <div class="section about-section" id="aboutme">
-      <div class="section-heading">
-        <span class="section-label">About</span>
-        <h2>About Me</h2>
-      </div>
-      <div class="about-layout">
-        <p>
-          I care about design that feels intentional. My goal is not just to
-          make something beautiful, but to make it feel precise, modern and
-          memorable from the first second.
-        </p>
-        <p>
-          I like combining technical thinking with elegant presentation so a
-          portfolio does not look like another template, but like a strong
-          personal brand.
-        </p>
-      </div>
-    </div>
-
-    <footer>
-      <div class="footer-section">
-        <h4>Social media</h4>
-        <ul>
-          <li><a href="">Instagram</a></li>
-          <li><a href="">Github</a></li>
-          <li><a href="">Linkedin</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4>More</h4>
-        <ul>
-          <li><a href="">ALGO</a></li>
-        </ul>
-      </div>
-    </footer>
-
+    <head>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+        <link href="styles.css" rel="stylesheet">
+        <title>My Webpage</title>
+    </head>
     <script src="scripts/script.js"></script>
-  </body>
+    <body>
+        <header>
+            <nav>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#works">My Works</a></li>
+                    <li><a href="#aboutme">About me</a></li>
+                </ul>
+            </nav>
+
+            <div class="right">
+                <select id="lenguaje-select">
+                    <option value="EN">EN</option>
+                    <option value="ES">ES</option>
+                </select>
+                <button onclick="changeColor(this)">☀️</button>
+            </div>
+        </header>
+        
+        <div class="section" id="home">
+            <h2>Home</h2>
+            <p>Lorem Ipsum es simplemente el texto de relleno de las imprentas y archivos de texto. Lorem Ipsum ha sido el texto de relleno estándar de las industrias desde el año 1500, cuando un impresor (N. del T. persona que se dedica a la imprenta) desconocido usó una galería de textos y los mezcló de tal manera que logró hacer un libro de textos especimen. No sólo sobrevivió 500 años, sino que tambien ingresó como texto de relleno en documentos electrónicos, quedando esencialmente igual al original. Fue popularizado en los 60s con la creación de las hojas "Letraset", las cuales contenian pasajes de Lorem Ipsum, y más recientemente con software de autoedición, como por ejemplo Aldus PageMaker, el cual incluye versiones de Lorem Ipsum.<p>
+        </div>
+        <div class="section" id="works">
+            <h2>My Works</h2>
+            <p>DATA BASE FROM SUPABASE</p>
+            <div class="slider" id="projects">
+                <!-- Aquí puedes agregar tus imágenes o contenido para el slider -->
+            </div>
+        </div>
+        <div class="section" id="aboutme">
+            <h2>About Me</h2>
+            <p>Lorem Ipsum es simplemente el texto de relleno de las imprentas y archivos de texto. Lorem Ipsum ha sido el texto de relleno estándar de las industrias desde el año 1500, cuando un impresor (N. del T. persona que se dedica a la imprenta) desconocido usó una galería de textos y los mezcló de tal manera que logró hacer un libro de textos especimen. No sólo sobrevivió 500 años, sino que tambien ingresó como texto de relleno en documentos electrónicos, quedando esencialmente igual al original. Fue popularizado en los 60s con la creación de las hojas "Letraset", las cuales contenian pasajes de Lorem Ipsum, y más recientemente con software de autoedición, como por ejemplo Aldus PageMaker, el cual incluye versiones de Lorem Ipsum.<p>
+        </div>
+        <footer>
+            <div class="footer-section">
+                <h4>Social media</h4>
+                <ul>
+                    <li><a href="">Instagram</a></li>
+                    <li><a href="">Github</a></li>
+                    <li><a href="">Linkedin</a></li>
+                </ul>
+            </div>
+            <div class="">
+                <h4>More</h4>
+                <ul>
+                    <li><a href="">ALGO</a></li>
+                </ul>
+            </div>
+        </footer>
+    </body>
 </html>
