@@ -1,3 +1,41 @@
+async function loadSection(slotId, url) {
+    const slot = document.getElementById(slotId);
+    if (!slot) {
+        return;
+    }
+
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(`Failed to load ${url}: ${response.status}`);
+    }
+
+    const html = await response.text();
+    const template = document.createElement("template");
+    template.innerHTML = html;
+
+    const scripts = Array.from(template.content.querySelectorAll("script"));
+    scripts.forEach((script) => script.remove());
+
+    slot.replaceChildren(template.content.cloneNode(true));
+
+    for (const script of scripts) {
+        const scriptElement = document.createElement("script");
+        scriptElement.async = false;
+
+        for (const attribute of script.attributes) {
+            scriptElement.setAttribute(attribute.name, attribute.value);
+        }
+
+        if (!script.src) {
+            scriptElement.textContent = script.textContent;
+        }
+
+        document.body.appendChild(scriptElement);
+    }
+}
+
+
+
 function changeColor(element) {
     const body = document.body;
     const isLight = body.classList.toggle("body-light");
@@ -23,8 +61,8 @@ function initRevealAnimations() {
             }
         });
     }, {
-        threshold: 0.18,
-        rootMargin: "0px 0px -12% 0px"
+        threshold: 0.2,
+        rootMargin: "0px 0px -18% 0px"
     });
 
     revealElements.forEach(element => observer.observe(element));
@@ -205,7 +243,7 @@ function initAnimatedHeader() {
     window.addEventListener("resize", handleResize);
 }
 
-const GITHUB_USERNAME = "jportabella";
+const GITHUB_USERNAME = "jportabellag";
 
 function updateStat(id, value) {
     const element = document.getElementById(id);
@@ -270,35 +308,74 @@ async function renderProjects() {
         console.error("Error loading projects:", error);
     }
 
+    if (layout === "showcase") {
+        renderProjectsCarousel(container, repos.slice(0, 7));
+        return;
+    }
+
     repos.forEach(repo => {
         const div = document.createElement("div");
+        div.classList.add("project-card");
+        div.innerHTML = `
+            <h5>${repo.name}</h5>
+            <p>${repo.description || "No description"}</p>
+            <p>${repo.language || ""}</p>
+            <a href="${repo.html_url}" target="_blank" rel="noreferrer">GitHub</a>
+        `;
+        container.appendChild(div);
+    });
+}
 
-        if (layout === "showcase") {
-            const tech = repo.language || "Codebase";
-            const scope = repo.topics && repo.topics.length ? repo.topics.slice(0, 3).join(" / ") : "Personal Project";
-            const liveAction = repo.homepage
-                ? `<a class="project-action project-action-primary" href="${repo.homepage}" target="_blank" rel="noreferrer">Live Site</a>`
-                : "";
+function renderProjectsCarousel(container, repos) {
+    if (!repos.length) {
+        return;
+    }
 
-            div.classList.add("project-showcase", "reveal", "reveal-up", "is-visible");
-            div.innerHTML = `
-                <div class="project-media">
-                    <div class="project-preview">
-                        <span class="project-preview-kicker">Featured repository</span>
-                        <h3>${repo.name}</h3>
-                        <p>${tech}</p>
-                    </div>
+    let activeIndex = 0;
+    const wrapper = document.createElement("div");
+    wrapper.className = "projects-carousel reveal reveal-up is-visible";
+    wrapper.innerHTML = `
+        <button class="projects-carousel-control projects-carousel-prev" type="button" aria-label="Previous project">
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <div class="projects-carousel-stage" aria-live="polite"></div>
+        <button class="projects-carousel-control projects-carousel-next" type="button" aria-label="Next project">
+            <i class="fa-solid fa-arrow-right"></i>
+        </button>
+    `;
+
+    const stage = wrapper.querySelector(".projects-carousel-stage");
+    const cards = repos.map((repo, index) => {
+        const tech = repo.language || "Codebase";
+        const scope = repo.topics && repo.topics.length ? repo.topics.slice(0, 3).join(" / ") : "Personal Project";
+        const coverImage = getProjectCoverImage(repo);
+        const liveAction = repo.homepage
+            ? `<a class="project-action project-action-primary" href="${repo.homepage}" target="_blank" rel="noreferrer">Live Site</a>`
+            : "";
+
+        const card = document.createElement("article");
+        card.className = "project-carousel-card";
+        card.dataset.index = String(index);
+        card.innerHTML = `
+            <div class="project-carousel-surface">
+                <div class="project-carousel-visual${coverImage ? " has-cover" : ""}"${coverImage ? ` style="background-image: linear-gradient(180deg, rgba(8, 10, 16, 0.18), rgba(8, 10, 16, 0.82)), url('${coverImage}');"` : ""}>
+                    <span class="project-preview-kicker">Featured repository</span>
+                    <h3>${repo.name}</h3>
+                    <p>${tech}</p>
                 </div>
-                <div class="project-content">
-                    <h2>${repo.name}</h2>
+                <div class="project-carousel-copy">
+                    <div class="project-carousel-header">
+                        <h2>${repo.name}</h2>
+                        <span class="project-carousel-tech">${tech}</span>
+                    </div>
                     <div class="project-meta">
                         <div>
                             <span class="project-meta-label">Scope</span>
                             <p>${scope}</p>
                         </div>
                         <div>
-                            <span class="project-meta-label">Tech</span>
-                            <p>${tech}</p>
+                            <span class="project-meta-label">Status</span>
+                            <p>${repo.homepage ? "Live" : "Repository"}</p>
                         </div>
                     </div>
                     <p class="project-description">${repo.description || "Repository published on GitHub with ongoing work, documentation and source code."}</p>
@@ -311,19 +388,85 @@ async function renderProjects() {
                         ${liveAction}
                     </div>
                 </div>
-            `;
-        } else {
-            div.classList.add("project-card");
-            div.innerHTML = `
-                <h5>${repo.name}</h5>
-                <p>${repo.description || "No description"}</p>
-                <p>${repo.language || ""}</p>
-                <a href="${repo.html_url}" target="_blank" rel="noreferrer">GitHub</a>
-            `;
+            </div>
+        `;
+
+        card.addEventListener("click", () => {
+            if (index === activeIndex) {
+                return;
+            }
+
+            activeIndex = index;
+            updateCarousel();
+        });
+
+        stage.appendChild(card);
+        return card;
+    });
+
+    function getWrappedDelta(index) {
+        const total = repos.length;
+        let delta = index - activeIndex;
+
+        if (delta > total / 2) {
+            delta -= total;
+        } else if (delta < -total / 2) {
+            delta += total;
         }
 
-        container.appendChild(div);
+        return delta;
+    }
+
+    function updateCarousel() {
+        cards.forEach((card, index) => {
+            const delta = getWrappedDelta(index);
+            card.classList.remove("is-active", "is-left-1", "is-left-2", "is-right-1", "is-right-2", "is-hidden");
+
+            if (delta === 0) {
+                card.classList.add("is-active");
+            } else if (delta === -1) {
+                card.classList.add("is-left-1");
+            } else if (delta === -2) {
+                card.classList.add("is-left-2");
+            } else if (delta === 1) {
+                card.classList.add("is-right-1");
+            } else if (delta === 2) {
+                card.classList.add("is-right-2");
+            } else {
+                card.classList.add("is-hidden");
+            }
+        });
+    }
+
+    wrapper.querySelector(".projects-carousel-prev").addEventListener("click", () => {
+        activeIndex = (activeIndex - 1 + repos.length) % repos.length;
+        updateCarousel();
     });
+
+    wrapper.querySelector(".projects-carousel-next").addEventListener("click", () => {
+        activeIndex = (activeIndex + 1) % repos.length;
+        updateCarousel();
+    });
+
+    container.appendChild(wrapper);
+    updateCarousel();
+}
+
+function getProjectCoverImage(repo) {
+    const repoName = (repo.name || "").toLowerCase();
+    const homepage = (repo.homepage || "").toLowerCase();
+    const description = (repo.description || "").toLowerCase();
+
+    if (
+        repoName.includes("gold coral") ||
+        repoName.includes("gold-coral") ||
+        homepage.includes("goldcoral.vip") ||
+        description.includes("gold coral")
+    ) {
+        return "img/gold-coral_caratula.png";
+    }
+
+    return "";
 }
 
 async function fetchRepoCommitCount(repoName) {
@@ -372,14 +515,27 @@ async function initGithubData() {
     }
 }
 
-function initPage() {
+async function initPage() {
+    await Promise.all([
+        loadSection("header-slot", "sections/header.html"),
+        loadSection("home-slot", "sections/home.html"),
+        loadSection("aboutme-slot", "sections/about-me.html"),
+        loadSection("skills-slot", "sections/skills.html")
+    ]);
+
     initGithubData();
     initRevealAnimations();
     initAnimatedHeader();
 }
 
 if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initPage);
+    document.addEventListener("DOMContentLoaded", () => {
+        initPage().catch((error) => {
+            console.error("Error initializing page:", error);
+        });
+    });
 } else {
-    initPage();
+    initPage().catch((error) => {
+        console.error("Error initializing page:", error);
+    });
 }
