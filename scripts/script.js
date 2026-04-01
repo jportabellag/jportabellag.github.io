@@ -277,6 +277,19 @@ async function renderProjects() {
         return;
     }
 
+    const privateProjects = [
+        {
+            name: "TikTok Auto Unfollow",
+            language: "Chrome Extension / HTML / JavaScript",
+            description: "Private Chrome extension built to automate the TikTok unfollow flow from the browser, with configurable delays, max actions, optional friend filtering and scripted interaction over the following modal.",
+            html_url: "",
+            homepage: "https://chromewebstore.google.com/detail/tiktok-auto-unfollow/edlbaijpjebfecionlegehagaofhejbn",
+            topics: ["chrome-extension", "automation", "private-build"],
+            statusLabel: "Published Extension",
+            primaryActionLabel: "Chrome Web Store"
+        }
+    ];
+
     const fallbackProjects = [
         {
             name: "Portfolio Website",
@@ -303,9 +316,10 @@ async function renderProjects() {
 
     try {
         const githubRepos = await fetchJson(`https://api.github.com/users/${GITHUB_USERNAME}/repos?per_page=100&sort=updated`);
-        repos = githubRepos.filter(repo => !repo.fork);
+        repos = privateProjects.concat(githubRepos.filter(repo => !repo.fork));
     } catch (error) {
         console.error("Error loading projects:", error);
+        repos = privateProjects.concat(fallbackProjects);
     }
 
     if (layout === "showcase") {
@@ -349,8 +363,17 @@ function renderProjectsCarousel(container, repos) {
         const tech = repo.language || "Codebase";
         const scope = repo.topics && repo.topics.length ? repo.topics.slice(0, 3).join(" / ") : "Personal Project";
         const coverImage = getProjectCoverImage(repo);
+        const detailsAction = repo.html_url
+            ? `<a class="project-action" href="${repo.html_url}" target="_blank" rel="noreferrer">More Details</a>`
+            : `<span class="project-action project-action-muted">Private Project</span>`;
+        const repoAction = repo.html_url
+            ? `<a class="project-action" href="${repo.html_url}" target="_blank" rel="noreferrer">
+                            <i class="fa-brands fa-github"></i>
+                            GitHub
+                        </a>`
+            : "";
         const liveAction = repo.homepage
-            ? `<a class="project-action project-action-primary" href="${repo.homepage}" target="_blank" rel="noreferrer">Live Site</a>`
+            ? `<a class="project-action project-action-primary" href="${repo.homepage}" target="_blank" rel="noreferrer">${repo.primaryActionLabel || "Live Site"}</a>`
             : "";
 
         const card = document.createElement("article");
@@ -375,16 +398,13 @@ function renderProjectsCarousel(container, repos) {
                         </div>
                         <div>
                             <span class="project-meta-label">Status</span>
-                            <p>${repo.homepage ? "Live" : "Repository"}</p>
+                            <p>${repo.statusLabel || (repo.homepage ? "Live" : "Repository")}</p>
                         </div>
                     </div>
                     <p class="project-description">${repo.description || "Repository published on GitHub with ongoing work, documentation and source code."}</p>
                     <div class="project-actions">
-                        <a class="project-action" href="${repo.html_url}" target="_blank" rel="noreferrer">More Details</a>
-                        <a class="project-action" href="${repo.html_url}" target="_blank" rel="noreferrer">
-                            <i class="fa-brands fa-github"></i>
-                            GitHub
-                        </a>
+                        ${detailsAction}
+                        ${repoAction}
                         ${liveAction}
                     </div>
                 </div>
