@@ -337,31 +337,57 @@ async function renderProjects() {
     const isDesktopPage  = !!document.getElementById('desktop-icons');
     if (!container && !isDesktopPage) return;
 
-    const privateProjects = [
-        {
-            name: 'TikTok Auto Unfollow',
-            language: 'Chrome Extension / JavaScript',
-            description: 'Chrome extension to automate the TikTok unfollow flow with configurable delays, filters and published on the Web Store.',
-            html_url: '',
-            homepage: 'https://chromewebstore.google.com/detail/tiktok-auto-unfollow/edlbaijpjebfecionlegehagaofhejbn',
-            topics: ['chrome-extension', 'automation'],
-            statusLabel: 'Published'
-        }
-    ];
+    const ALLOWED = ['damm-router', 'gold-coral', 'myportfolio'];
 
-    const fallback = [
-        { name: 'Portfolio Website', language: 'HTML / CSS / JavaScript', description: 'Personal portfolio with motion, GitHub integration and interactive visuals.', html_url: `https://github.com/${GH}`, homepage: '', topics: ['frontend', 'portfolio'], statusLabel: 'Live' },
-        { name: 'CS50 Projects', language: 'Python / Flask / SQL', description: 'Course projects exploring backend logic, databases and full-stack fundamentals.', html_url: `https://github.com/${GH}`, homepage: '', topics: ['full-stack', 'python'], statusLabel: 'Repo' }
-    ];
+    const PROJECTS_META = {
+        'gold-coral': {
+            description: 'Minimalist and responsive landing page with a sharp focus on UX and clean CSS design. No dependencies, fast load times and a pixel-perfect layout built to scale for future content and features.',
+            topics: ['frontend', 'css', 'landing-page', 'ux', 'responsive'],
+            statusLabel: 'Live',
+            screenshots: ['img/gold-coral_caratula.png']
+        },
+        'myportfolio': {
+            description: 'Personal portfolio featuring a retro JP/OS desktop interface, particle animation header, live GitHub stats, dark/light theme toggle and a fully responsive mobile layout — all without frameworks.',
+            topics: ['portfolio', 'frontend', 'javascript', 'github-api', 'css'],
+            statusLabel: 'Live',
+            screenshots: ['img/my_page.png']
+        },
+        'damm-router': {
+            description: 'TypeScript router built during a 48h hackathon. Implements dynamic path resolution, configurable routing rules and a modular architecture designed to be extended with middleware and nested routes.',
+            topics: ['typescript', 'router', 'hackathon', 'backend'],
+            statusLabel: 'Repo',
+            screenshots: ['img/damm1.jpeg', 'img/damm2.jpeg']
+        }
+    };
+
+    const fallback = ALLOWED.map(key => {
+        const meta = PROJECTS_META[key];
+        return { name: key, language: '', html_url: `https://github.com/${GH}/${key}`, homepage: '', ...meta };
+    });
+
+    const tiktok = {
+        name: 'TikTok Auto Unfollow',
+        language: 'JavaScript',
+        description: 'Chrome extension that automates the TikTok unfollow flow with configurable delays, smart filters and batch processing. Published on the Chrome Web Store.',
+        html_url: '',
+        homepage: 'https://chromewebstore.google.com/detail/tiktok-auto-unfollow/edlbaijpjebfecionlegehagaofhejbn',
+        topics: ['chrome-extension', 'automation', 'javascript'],
+        statusLabel: 'Published',
+        screenshots: []
+    };
 
     let repos = fallback;
     try {
         const { data } = await gfetch(`https://api.github.com/users/${GH}/repos?per_page=100&sort=updated`);
-        repos = privateProjects.concat(data.filter(r => !r.fork));
+        repos = data
+            .filter(r => ALLOWED.includes(r.name.toLowerCase()))
+            .map(r => ({ ...r, ...(PROJECTS_META[r.name.toLowerCase()] || {}) }))
+            .sort((a, b) => ALLOWED.indexOf(a.name.toLowerCase()) - ALLOWED.indexOf(b.name.toLowerCase()));
     } catch (e) {
         console.error('Projects error:', e);
-        repos = privateProjects.concat(fallback);
     }
+
+    repos = [tiktok, ...repos];
 
     // ── desktop page: OS or mobile depending on screen ──
     if (isDesktopPage) {
@@ -603,12 +629,22 @@ function _openProjectWin(repo) {
         liveLink ? `<a href="${liveLink}" target="_blank" rel="noreferrer" class="win-link win-link-primary"><i class="fa-solid fa-arrow-up-right"></i> Live</a>` : '',
     ].filter(Boolean).join('');
 
+    const shots = repo.screenshots || [];
+    const screenshotsHtml = shots.length ? `
+        <div class="win-proj-gallery">
+            <p class="win-meta" style="margin-bottom:.5rem">// Preview</p>
+            <div class="win-gallery-track">
+                ${shots.map(src => `<img src="${src}" class="win-gallery-img" alt="screenshot" loading="lazy">`).join('')}
+            </div>
+        </div>` : '';
+
     const body = `
         <div class="win-proj-head">
             <h2 class="win-proj-title">${repo.name}</h2>
             <span class="win-proj-status">${status}</span>
         </div>
         <p class="win-proj-desc">${repo.description || 'No description available.'}</p>
+        ${screenshotsHtml}
         ${tagsHtml   ? `<div class="win-proj-tags">${tagsHtml}</div>`   : ''}
         ${linksHtml  ? `<div class="win-proj-links">${linksHtml}</div>` : ''}
         ${repo.language ? `<p class="win-meta">// Built with ${repo.language}</p>` : ''}
@@ -865,9 +901,15 @@ function renderMobileProjects(repos) {
             liveLink ? `<a href="${liveLink}" target="_blank" rel="noreferrer" class="mp-card-link mp-card-link-primary"><i class="fa-solid fa-arrow-up-right"></i> Live</a>` : '',
         ].filter(Boolean).join('');
 
+        const shots = repo.screenshots || [];
+        const coverHtml = shots.length
+            ? `<img src="${shots[0]}" class="mp-card-cover" alt="${repo.name} preview" loading="lazy">`
+            : '';
+
         const card = document.createElement('div');
         card.className = 'mp-card';
         card.innerHTML = `
+            ${coverHtml}
             <div class="mp-card-head">
                 <h3 class="mp-card-name">${repo.name}</h3>
                 <span class="mp-card-badge">${status}</span>

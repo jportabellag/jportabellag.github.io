@@ -1135,6 +1135,25 @@ body.page-desktop { overflow:hidden; height:100dvh; }
 
 .win-meta { font-size:.66rem; color:var(--subtle); }
 
+.win-proj-gallery { display:flex; flex-direction:column; gap:0; }
+.win-gallery-track {
+    display:flex; gap:.55rem;
+    overflow-x:auto; scroll-snap-type:x mandatory;
+    padding-bottom:.4rem;
+    scrollbar-width:thin; scrollbar-color:var(--border) transparent;
+}
+.win-gallery-track::-webkit-scrollbar { height:3px; }
+.win-gallery-track::-webkit-scrollbar-thumb { background:var(--border-h); }
+.win-gallery-img {
+    flex-shrink:0; scroll-snap-align:start;
+    width:100%; max-width:420px; height:200px;
+    object-fit:cover;
+    border:1px solid var(--border);
+    display:block;
+    transition:border-color .2s;
+}
+.win-gallery-img:hover { border-color:var(--border-h); }
+
 /* ── taskbar ── */
 .taskbar {
     position:absolute; bottom:0; left:0; right:0;
@@ -1623,6 +1642,14 @@ body.cur-active .c-br {
         -webkit-tap-highlight-color: transparent;
     }
     .mp-card:last-child { border-bottom: 1px solid var(--border); }
+
+    .mp-card-cover {
+        width: 100%; height: 180px;
+        object-fit: cover;
+        border: 1px solid var(--border);
+        display: block;
+        margin-bottom: .9rem;
+    }
 
     /* tap highlight */
     .mp-card::before {
