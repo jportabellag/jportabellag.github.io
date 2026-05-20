@@ -410,6 +410,7 @@ body.cur-active .c-br {
 .marquee-strip {
     position: relative;
     z-index: 1;
+    margin-top: 3.5rem;
     border-top: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
     padding: .75rem 0;
